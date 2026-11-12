@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "commit-vitals",
+  "displayName": "Commit Vitals",
+  "version": "0.1.0",
+  "description": "Lighthouse & Core Web Vitals for every commit. Measures your pages after each commit and on a daily schedule, keeps the history in your repo, and lets Claude catch and fix performance regressions.",
+  "author": {
+    "name": "Leonardo Muniz",
+    "url": "https://github.com/odranoelBR"
+  },
+  "homepage": "https://github.com/odranoelBR/commit-vitals#readme",
+  "repository": "https://github.com/odranoelBR/commit-vitals",
+  "license": "MIT",
+  "keywords": [
+    "lighthouse",
+    "core-web-vitals",
+    "web-performance",
+    "performance-budget",
+    "regression",
+    "mcp"
+  ]
+}

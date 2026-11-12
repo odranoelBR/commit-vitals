@@ -1,0 +1,41 @@
+{
+  "name": "commit-vitals",
+  "version": "0.1.0",
+  "description": "Lighthouse & Core Web Vitals for every commit, right inside Claude Code.",
+  "type": "module",
+  "bin": {
+    "commit-vitals": "bin/commit-vitals.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "mcp",
+    "hooks",
+    "skills",
+    ".claude-plugin",
+    ".mcp.json"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18.20"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "mcp",
+    "lighthouse",
+    "core-web-vitals",
+    "web-performance",
+    "performance-budget"
+  ],
+  "author": "Leonardo Muniz",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/odranoelBR/commit-vitals.git"
+  },
+  "homepage": "https://github.com/odranoelBR/commit-vitals#readme",
+  "bugs": "https://github.com/odranoelBR/commit-vitals/issues"
+}

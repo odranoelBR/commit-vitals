@@ -1,0 +1,17 @@
+{
+  "description": "commit-vitals: measure Core Web Vitals in the background after every git commit Claude makes",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/bin/commit-vitals.mjs\" hook",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

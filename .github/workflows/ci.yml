@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test
+      - name: Validate plugin manifests
+        run: |
+          node -e "for (const f of ['.claude-plugin/plugin.json','.claude-plugin/marketplace.json','.mcp.json','hooks/hooks.json']) JSON.parse(require('fs').readFileSync(f,'utf8'))"

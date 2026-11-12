@@ -1,0 +1,15 @@
+{
+  "engine": "local",
+  "formFactor": "mobile",
+  "runs": 3,
+  "urls": [
+    { "name": "home", "url": "http://localhost:4173/" },
+    { "name": "listing", "url": "http://localhost:4173/products" },
+    { "name": "product", "url": "http://localhost:4173/products/1", "budgets": { "lcp": 3000 } }
+  ],
+  "budgets": { "score": 90, "lcp": 2500, "cls": 0.1, "tbt": 200 },
+  "onCommit": {
+    "enabled": true,
+    "waitFor": null
+  }
+}

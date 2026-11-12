@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" role="img" aria-label="commit-vitals — Core Web Vitals for every commit">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14161c"/>
+      <stop offset="1" stop-color="#1d2230"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6c9cff" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#6c9cff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" rx="24" fill="url(#bg)"/>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+    <text x="72" y="128" fill="#ececef" font-size="64" font-weight="700" letter-spacing="-1">commit-vitals</text>
+    <text x="74" y="176" fill="#a8adbb" font-size="26">Lighthouse &amp; Core Web Vitals for every commit,</text>
+    <text x="74" y="210" fill="#a8adbb" font-size="26">right inside Claude Code.</text>
+  </g>
+  <!-- timeline: steady, regression, fix -->
+  <g transform="translate(700 70)">
+    <line x1="0" y1="150" x2="430" y2="150" stroke="#2c3140" stroke-width="2"/>
+    <line x1="0" y1="80" x2="430" y2="80" stroke="#f0a63a" stroke-width="2" stroke-dasharray="7 6" opacity=".8"/>
+    <path d="M10 112 L70 110 L130 108 L190 106 L250 26 L310 116 L370 118 L420 120 L420 150 L10 150 Z" fill="url(#fade)"/>
+    <polyline points="10,112 70,110 130,108 190,106 250,26 310,116 370,118 420,120" fill="none" stroke="#6c9cff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <g fill="#6c9cff" stroke="#1b1f2b" stroke-width="3">
+      <circle cx="10" cy="112" r="8"/><circle cx="70" cy="110" r="8"/><circle cx="130" cy="108" r="8"/><circle cx="190" cy="106" r="8"/>
+      <circle cx="310" cy="116" r="8"/><circle cx="370" cy="118" r="8"/><circle cx="420" cy="120" r="8"/>
+    </g>
+    <circle cx="250" cy="26" r="11" fill="#ff6b6b" stroke="#1b1f2b" stroke-width="3"/>
+    <text x="268" y="22" fill="#ff8b8b" font-family="ui-monospace, Menlo, monospace" font-size="18">LCP +1.5 s · 0f3a8c1</text>
+    <text x="300" y="98" fill="#f0a63a" font-family="ui-monospace, Menlo, monospace" font-size="15" opacity=".9">budget</text>
+  </g>
+</svg>
