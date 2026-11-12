@@ -5,7 +5,8 @@ import { findProjectRoot, hasConfig, loadConfig, writeConfig } from '../lib/conf
 import { measureProject } from '../lib/measure.mjs';
 import { findRun, listRuns, readJob, writeJob, activeJob } from '../lib/store.mjs';
 import { compareRunsText, summarizeHistory, summarizeRun } from '../lib/format.mjs';
-import { CLI_PATH, startBackgroundMeasure } from '../lib/background.mjs';
+import { CLI_PATH, measureCommitOnce, startBackgroundMeasure } from '../lib/background.mjs';
+import { handleHookPayload, installGitHook } from '../lib/hook.mjs';
 
 const HELP = `commit-vitals — Lighthouse & Core Web Vitals for every commit
 
@@ -21,10 +22,13 @@ Commands
                 --trigger manual|commit|daily|mcp
                 --only <name,name>     measure a subset
                 --background           return immediately, measure in a detached process
+                --once-per-commit      background, and skip if HEAD was already measured
                 --json                 print the run record instead of the summary
   status      Show config, running job and the latest result
   history     Table of recent measurements      [--limit n] [--page name]
   compare     Latest run vs its baseline, or two commits: compare <shaA> <shaB>
+  install-git-hook   Add a git post-commit hook (measures commits made outside Claude Code)
+  hook        Claude Code PostToolUse hook entry point (reads the payload on stdin)
   where       Print the paths this CLI runs from (useful for cron)
 
 Global options
@@ -70,6 +74,11 @@ const commands = {
   async measure(args, root) {
     const only = list(args.only).flatMap((s) => String(s).split(',')).filter(Boolean);
     const trigger = typeof args.trigger === 'string' ? args.trigger : 'manual';
+    if (args['once-per-commit']) {
+      const started = measureCommitOnce(root);
+      console.log(started ? `Started job ${started.job.id} for ${started.sha.slice(0, 7)}.` : 'HEAD already measured; nothing to do.');
+      return;
+    }
     if (args.background) {
       const { job, alreadyRunning } = startBackgroundMeasure(root, { trigger, only });
       console.log(alreadyRunning ? `A measurement is already running (job ${job.id}).` : `Started job ${job.id}. Log: ${job.log}`);
@@ -114,6 +123,29 @@ const commands = {
     const to = findRun(root, b);
     if (!from || !to) throw new Error(`No run found for ${!from ? a : b ?? 'latest'}`);
     console.log(compareRunsText(from, to, loadConfig(root)));
+  },
+
+  // Claude Code PostToolUse hook: payload on stdin, JSON (or nothing) on stdout. Never fails.
+  async hook() {
+    let payload = {};
+    try {
+      const chunks = [];
+      for await (const c of process.stdin) chunks.push(c);
+      payload = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+    } catch {
+      return;
+    }
+    try {
+      const out = handleHookPayload(payload);
+      if (out) console.log(JSON.stringify(out));
+    } catch (e) {
+      console.error(`commit-vitals hook: ${e.message}`);
+    }
+  },
+
+  async 'install-git-hook'(args, root) {
+    const file = installGitHook(root);
+    console.log(`Installed ${file}\nCommits made outside Claude Code are measured too. Re-run after updating the plugin.`);
   },
 
   async where() {
