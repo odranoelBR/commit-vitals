@@ -11,7 +11,7 @@ import { extractFromLhr, lighthousePackage, extractField } from '../lib/lighthou
 import { diffMetrics, checkBudgets } from '../lib/compare.mjs';
 import { isCommitCommand } from '../lib/git.mjs';
 import { writeConfig, loadConfig, nameFromUrl, findProjectRoot, DEFAULT_CONFIG } from '../lib/config.mjs';
-import { measureProject, readMeta, waitForDeploy } from '../lib/measure.mjs';
+import { measureProject, readMeta, waitForDeploy, aggregateSamples } from '../lib/measure.mjs';
 import { listRuns } from '../lib/store.mjs';
 import { summarizeRun } from '../lib/format.mjs';
 
@@ -78,6 +78,21 @@ test('a regression must beat both absolute and relative thresholds', () => {
   const d = diffMetrics(base, { ...base, score: 82, cls: 0.15 }, t);
   assert.deepEqual(d.regressions.sort(), ['cls', 'score']);
   assert.deepEqual(diffMetrics(base, { ...base, tbt: 20 }, t).improvements, ['tbt']);
+});
+
+test('changes inside overlapping run ranges are noise, not regressions', () => {
+  const t = DEFAULT_CONFIG.regression;
+  const before = { cls: 0.363 };
+  const after = { cls: 0.463 };
+  // real case measured on a live site: same code, banner-driven CLS variance
+  const overlap = diffMetrics(before, after, t, { beforeSpread: { cls: { min: 0.312, max: 0.414 } }, afterSpread: { cls: { min: 0.347, max: 0.58 } } });
+  assert.deepEqual(overlap.regressions, []);
+  assert.deepEqual(overlap.withinNoise, ['cls']);
+  const apart = diffMetrics(before, after, t, { beforeSpread: { cls: { min: 0.35, max: 0.37 } }, afterSpread: { cls: { min: 0.45, max: 0.47 } } });
+  assert.deepEqual(apart.regressions, ['cls']);
+  // single runs carry no noise information: thresholds alone decide
+  const single = diffMetrics(before, after, t, { beforeSpread: { cls: { min: 0.363, max: 0.363 } }, afterSpread: { cls: { min: 0.463, max: 0.463 } } });
+  assert.deepEqual(single.regressions, ['cls']);
 });
 
 test('budgets: score is a floor, everything else a ceiling', () => {
@@ -147,8 +162,7 @@ test('measureProject stores medians, git info and flags a regression against the
 
   fs.writeFileSync(path.join(dir, 'index.html'), '<h1>slower</h1>');
   git('commit', '-q', '-am', 'add huge hero image');
-  // two slow samples and one fast outlier: the median must be slow
-  const samples = [slow, fast, slow];
+  const samples = [slow, slow, slow];
   const second = await measureProject(dir, { trigger: 'commit', runner: async () => ({ lhr: samples.shift() }) });
   const res = second.record.results[0];
   assert.equal(res.metrics.lcp, 3400);
@@ -162,6 +176,15 @@ test('measureProject stores medians, git info and flags a regression against the
   assert.match(text, /regression/);
   assert.match(text, /add huge hero image/);
   assert.match(text, /Eliminate render-blocking resources/);
+});
+
+test('median ignores a single outlier run and hints come from the median-like run', () => {
+  const fast = extractFromLhr(fixture('lhr-fast.json'));
+  const slow = extractFromLhr(fixture('lhr-slow.json'));
+  const agg = aggregateSamples([slow, fast, slow]);
+  assert.equal(agg.metrics.lcp, 3400);
+  assert.deepEqual(agg.spread.lcp, { min: 1800, max: 3400 });
+  assert.equal(agg.metrics.score, 71);
 });
 
 test('a page that fails every run is recorded as an error, not a crash', async () => {

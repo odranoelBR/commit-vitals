@@ -7,6 +7,7 @@ import { findRun, listRuns, readJob, writeJob, activeJob } from '../lib/store.mj
 import { compareRunsText, summarizeHistory, summarizeRun } from '../lib/format.mjs';
 import { CLI_PATH, measureCommitOnce, startBackgroundMeasure } from '../lib/background.mjs';
 import { handleHookPayload, installGitHook } from '../lib/hook.mjs';
+import { writeReport } from '../lib/report.mjs';
 
 const HELP = `commit-vitals — Lighthouse & Core Web Vitals for every commit
 
@@ -27,6 +28,7 @@ Commands
   status      Show config, running job and the latest result
   history     Table of recent measurements      [--limit n] [--page name]
   compare     Latest run vs its baseline, or two commits: compare <shaA> <shaB>
+  report      Write the HTML timeline report     [--out file] (default .vitals/report.html)
   install-git-hook   Add a git post-commit hook (measures commits made outside Claude Code)
   hook        Claude Code PostToolUse hook entry point (reads the payload on stdin)
   where       Print the paths this CLI runs from (useful for cron)
@@ -146,6 +148,11 @@ const commands = {
   async 'install-git-hook'(args, root) {
     const file = installGitHook(root);
     console.log(`Installed ${file}\nCommits made outside Claude Code are measured too. Re-run after updating the plugin.`);
+  },
+
+  async report(args, root) {
+    const file = writeReport(root, typeof args.out === 'string' ? args.out : undefined);
+    console.log(`Report written to ${file}`);
   },
 
   async where() {

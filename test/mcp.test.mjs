@@ -39,7 +39,7 @@ test('MCP server: handshake, tool list and tool calls over stdio', async (t) => 
 
   const list = await request('tools/list', {});
   const names = list.result.tools.map((x) => x.name);
-  assert.deepEqual(names, ['vitals_status', 'vitals_init', 'vitals_measure', 'vitals_result', 'vitals_history', 'vitals_compare', 'vitals_setup_info']);
+  assert.deepEqual(names, ['vitals_status', 'vitals_init', 'vitals_measure', 'vitals_result', 'vitals_history', 'vitals_compare', 'vitals_report', 'vitals_setup_info']);
   for (const tool of list.result.tools) assert.equal(tool.inputSchema.type, 'object');
 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cv-mcp-'));

@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { findProjectRoot, hasConfig, loadConfig, writeConfig } from '../lib/config.mjs';
 import { findRun, listRuns, readJob, activeJob, listJobs } from '../lib/store.mjs';
 import { compareRunsText, summarizeHistory, summarizeRun } from '../lib/format.mjs';
+import { writeReport } from '../lib/report.mjs';
 import { CLI_PATH, PLUGIN_ROOT, startBackgroundMeasure, waitForJob } from '../lib/background.mjs';
 
 const VERSION = '0.1.0';
@@ -99,6 +100,12 @@ export const TOOLS = [
       properties: { ...projectDirProp, from: { type: 'string' }, to: { type: 'string' } },
       required: ['from'],
     },
+  },
+  {
+    name: 'vitals_report',
+    description:
+      'Writes a self-contained HTML report (.vitals/report.html): per-page timeline of score, LCP, CLS and TBT with commit/daily points, budgets and the full history table. Returns the file path.',
+    inputSchema: { type: 'object', properties: { ...projectDirProp } },
   },
   {
     name: 'vitals_setup_info',
@@ -198,6 +205,12 @@ export const handlers = {
     if (!from) throw new Error(`No measurement found for commit ${args.from}`);
     if (!to) throw new Error(`No measurement found for commit ${args.to}`);
     return compareRunsText(from, to, loadConfig(root));
+  },
+
+  async vitals_report(args) {
+    const root = rootFrom(args);
+    const file = writeReport(root);
+    return `Report written to ${file}`;
   },
 
   async vitals_setup_info(args) {
