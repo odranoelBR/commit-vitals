@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-marketplace.json",
+  "name": "commit-vitals",
+  "owner": {
+    "name": "Leonardo Muniz",
+    "url": "https://github.com/odranoelBR"
+  },
+  "description": "Performance monitoring for every commit, inside Claude Code.",
+  "plugins": [
+    {
+      "name": "commit-vitals",
+      "displayName": "Commit Vitals",
+      "source": "./",
+      "description": "Lighthouse & Core Web Vitals for every commit, with daily checks and AI-readable regression reports.",
+      "author": {
+        "name": "Leonardo Muniz",
+        "url": "https://github.com/odranoelBR"
+      },
+      "homepage": "https://github.com/odranoelBR/commit-vitals#readme",
+      "repository": "https://github.com/odranoelBR/commit-vitals",
+      "license": "MIT",
+      "keywords": ["lighthouse", "core-web-vitals", "performance", "mcp"],
+      "category": "Development"
+    }
+  ]
+}
