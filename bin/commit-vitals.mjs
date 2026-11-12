@@ -4,8 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { findProjectRoot, hasConfig, loadConfig, writeConfig } from '../lib/config.mjs';
 import { measureProject } from '../lib/measure.mjs';
 import { findRun, listRuns, readJob, writeJob, activeJob } from '../lib/store.mjs';
-import { summarizeHistory, summarizeRun } from '../lib/format.mjs';
-import { diffMetrics } from '../lib/compare.mjs';
+import { compareRunsText, summarizeHistory, summarizeRun } from '../lib/format.mjs';
 import { CLI_PATH, startBackgroundMeasure } from '../lib/background.mjs';
 
 const HELP = `commit-vitals — Lighthouse & Core Web Vitals for every commit
@@ -125,22 +124,6 @@ const commands = {
     console.log(HELP);
   },
 };
-
-export function compareRunsText(from, to, cfg) {
-  const lines = [`## ${from.git?.shortSha ?? from.id} → ${to.git?.shortSha ?? to.id}`];
-  for (const r of to.results) {
-    const before = from.results.find((x) => x.name === r.name);
-    if (!r.metrics || !before?.metrics) {
-      lines.push(`- ${r.name}: not comparable`);
-      continue;
-    }
-    const d = diffMetrics(before.metrics, r.metrics, cfg.regression);
-    const parts = Object.entries(d.deltas).map(([m, v]) => `${m} ${v.delta > 0 ? '+' : ''}${v.delta}`);
-    const verdict = d.regressions.length ? `🔴 worse: ${d.regressions.join(', ')}` : d.improvements.length ? `🟢 better: ${d.improvements.join(', ')}` : 'no significant change';
-    lines.push(`- ${r.name}: ${verdict} (${parts.join(', ')})`);
-  }
-  return lines.join('\n');
-}
 
 export async function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
